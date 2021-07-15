@@ -1,0 +1,182 @@
+.blocko {
+    font-family: sans-serif;
+    font-size: 15px;
+    width: 600px;
+}
+
+.blocko * {
+    box-sizing: border-box;
+    position: relative;
+    padding: 0;
+    margin: 0;
+}
+
+.blocko .block {
+    color: #fbfbfb;
+}
+
+.blocko .block.active {
+    border: 1px solid #333;
+}
+
+.blocko .controls {
+    display: flex;
+    align-items: center;
+    width: 40px;
+    height: calc(100% - 2px);
+    position: absolute;
+    left: -40px;
+}
+
+.blocko .controls .control {
+    cursor: pointer;
+    opacity: .5;
+}
+
+.blocko .controls .control:hover {
+    box-shadow: 0px 3px 10px rgba(0,0,0,.5);
+    opacity: 1;
+}
+
+/**
+ * ----------------------------------------
+ * ADD BLOCK
+ * ----------------------------------------
+ */
+.blocko .add-block {
+    width: 100%;
+    height: 4px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+
+.blocko .add-block:before {
+    display: none;
+    content: '';
+    width: 100%;
+    height: 2px;
+    background: #272727;
+    position: relative;
+    top: 1px;
+}
+
+.blocko .add-block:hover:before {
+    display: block;
+}
+
+.blocko .add-block .add-btn {
+    display: none;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    font-weight: 800;
+    text-align: center;
+    color: #111;
+    text-shadow: 0 1px 0 #fff;
+    background: #fff;
+    background: linear-gradient(#fff, #eee);
+    border: 1px solid #fff;
+    border-radius: 100%;
+    cursor:  pointer;
+    z-index: 10;
+    position: absolute;
+    top: calc(50% - 14px);
+    left: calc(50% - 15px);
+}
+
+.blocko .add-block:hover .add-btn {
+    display: block;
+}
+
+/**
+ * ----------------------------------------
+ * ADD BLOCK MENU
+ * ----------------------------------------
+ */
+.blocko .menu {
+    display: block;
+    width: 400px;
+    height: auto;
+    background: #111;
+    box-shadow: 0px 3px 20px rgba(0,0,0,.5), 0px 0px 50px rgba(0,0,0,.5);
+    border: 1px solid #272727;
+    border-radius: 5px;
+    z-index: 20;
+    position: absolute;
+    padding: 25px;
+    top: -50px;
+    left: calc(50% - 200px);
+}
+
+.blocko .menu ul {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 20px;
+}
+
+.blocko .menu ul li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 75px;
+    list-style: none;
+    text-align: center;
+    cursor: pointer;
+    border: 1px solid #272727;
+    border-radius: 5px;
+    opacity: .75;
+    transition: all 0.1s linear;
+}
+
+.blocko .menu ul li:hover {
+    background: #171717;
+    background: linear-gradient(#171717, #111);
+    opacity: 1;
+}
+
+.blocko .menu ul li .icon {
+    font-size: 23px;
+    color: #fff;
+    line-height: 1;
+}
+
+.blocko .menu ul li .label {
+    font-size: 10px;
+    font-weight: 400;
+    text-transform: uppercase;
+    color: #eee;
+    line-height: 1;
+    letter-spacing: 0.5px;
+    margin-top: 10px;
+}
+
+/**
+ * ----------------------------------------
+ * PARAGRAPH BLOCK
+ * ----------------------------------------
+ */
+.blocko .block.paragraph .paragraph-content {
+    outline: none;
+}
+
+.blocko .block.paragraph .paragraph-content:empty:before {
+    content: attr(data-placeholder);
+    opacity: .5;
+    cursor: text;
+}
+
+.blocko .block.heading textarea {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    font-family: sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: #fff;
+    background: transparent;
+    outline: none;
+    resize: none;
+    border: 0;
+}

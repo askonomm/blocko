@@ -1,0 +1,22 @@
+;; shadow-cljs configuration
+{:source-paths
+ ["src"]
+
+ :dependencies
+ [[reagent "1.1.0"]
+  [re-frame "1.2.0"]
+  [hickory "0.7.1"]]
+
+ :builds
+ {:dev
+  {:target :browser
+   :output-dir "public/js"
+   :modules
+   {:blocko
+    {:entries [blocko.core]}}}
+  :prod
+  {:target :browser
+   :output-dir "dist"
+   :modules
+   {:blocko
+    {:entries [blocko.core]}}}}}

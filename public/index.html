@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Blocko - A block-based WYSIWYG editor</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="blocko.css">
+</head>
+<body>
+
+    <div id="editor" class="blocko"></div>
+
+    <script src="js/blocko.js"></script>
+    <script>
+        blocko.core.init({
+            container: '#editor',
+            initialContent: [],
+            onChange: (content) => {
+                console.log('onChange', content);
+            }
+        });
+    </script>
+
+</body>
+</html>
