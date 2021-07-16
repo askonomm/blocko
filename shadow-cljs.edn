@@ -4,8 +4,7 @@
 
  :dependencies
  [[reagent "1.1.0"]
-  [re-frame "1.2.0"]
-  [hickory "0.7.1"]]
+  [re-frame "1.2.0"]]
 
  :builds
  {:dev
@@ -14,9 +13,16 @@
    :modules
    {:blocko
     {:entries [blocko.core]}}}
-  :prod
+  :prod-browser
   {:target :browser
-   :output-dir "dist"
+   :output-dir "dist/browser"
+   :modules
+   {:blocko
+    {:entries [blocko.core]}}}
+  :prod-npm
+  {:target :node-library
+   :exports-fn blocko.core/init
+   :output-to "dist/npm/blocko.js"
    :modules
    {:blocko
     {:entries [blocko.core]}}}}}
