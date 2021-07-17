@@ -34,7 +34,6 @@
  :delete-block
  (fn [db [_ id]]
    (let [blocks (get db :blocks)]
-     (prn "Deleting block id: " id)
      (assoc db :blocks (utils/block<-blocks blocks id)))))
 
 (reg-event-db

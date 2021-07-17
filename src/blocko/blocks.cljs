@@ -8,7 +8,8 @@
    [blocko.blocks.paragraph :as blocks.paragraph]
    [blocko.blocks.heading :as blocks.heading]
    [blocko.blocks.add :as blocks.add]
-   [blocko.utils :as utils]))
+   [blocko.utils :as utils]
+   [blocko.styles :as styles]))
 
 (defn focus! [{:keys [id where]} blocks]
   (when-let [block-el (.querySelector js/document (str ".block[data-id='" id "']"))]
@@ -37,7 +38,8 @@
   (let [active-block (subscribe [:active-block])
         {:keys [id type]} block]
     (fn []
-      [:div.block {:class type
+      [:div.block {:css styles/block
+                   :class type
                    :data-id id}
        (when (= id @active-block)
          [controls id])
@@ -56,7 +58,7 @@
             (focus! block-focus new-blocks))))
       :reagent-render
       (fn []
-        [:div.blocks
+        [:div.blocks {:css styles/blocko}
          [blocks.add/block 0]
          (map-indexed
           (fn [index item]

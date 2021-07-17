@@ -120,7 +120,6 @@
     :dangerouslySetInnerHTML {:__html @content-state}}])
 
 (defn block [id index block]
-  (prn "Itearting a paragraph block")
   (let [ref (r/atom nil)
         content-state (r/atom (get block :content))
         caret-location-state (r/atom nil)]

@@ -13,16 +13,9 @@
    :modules
    {:blocko
     {:entries [blocko.core]}}}
-  :prod-browser
+  :prod
   {:target :browser
-   :output-dir "dist/browser"
-   :modules
-   {:blocko
-    {:entries [blocko.core]}}}
-  :prod-npm
-  {:target :node-library
-   :exports-fn blocko.core/init
-   :output-to "dist/npm/blocko.js"
+   :output-dir "dist"
    :modules
    {:blocko
     {:entries [blocko.core]}}}}}

@@ -15,10 +15,6 @@
     color: #fbfbfb;
 }
 
-.blocko .block.active {
-    border: 1px solid #333;
-}
-
 .blocko .controls {
     display: flex;
     align-items: center;
