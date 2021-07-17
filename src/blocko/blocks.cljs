@@ -8,8 +8,7 @@
    [blocko.blocks.paragraph :as blocks.paragraph]
    [blocko.blocks.heading :as blocks.heading]
    [blocko.blocks.add :as blocks.add]
-   [blocko.utils :as utils]
-   [blocko.styles :as styles]))
+   [blocko.utils :as utils]))
 
 (defn focus! [{:keys [id where]} blocks]
   (when-let [block-el (.querySelector js/document (str ".block[data-id='" id "']"))]
