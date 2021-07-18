@@ -57,7 +57,6 @@ blocko.core.init({
 (blocko/run 
   {:content []
    :on-change #(fn [content] (prn "store content in your database here"))})
-
 ```
 
 #### API
@@ -80,6 +79,7 @@ Blocko uses a very simple data structure to define the content of the editor. It
 ```
 
 #### EDN
+
 ```clojure
 {:id "uuid",
  :type "paragraph",
@@ -97,6 +97,7 @@ Blocko uses a very simple data structure to define the content of the editor. It
 ```
 
 #### EDN
+
 ```clojure
 {:id "uuid",
  :type "heading",
