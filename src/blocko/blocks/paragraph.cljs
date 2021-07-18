@@ -108,26 +108,27 @@
   "Renders the actual DOM output of the paragraph block and hooks to it
   many of its necessary events."
   [{:keys [id ref focus content-state caret-location-state index]}]
-  (if (and (empty? @content-state)
-           (nil? @focus))
-    [:div.blocko-block--paragraph-content
-     {:style styles/paragraph-block-content-empty
-      :on-click #(do
-                   (reset! focus true)
-                   (dispatch [:focus-block
-                              {:id id
-                               :where :end}]))}
-     "Start writing a paragraph ..."]
-    [:div.blocko-block--paragraph-content
-     {:style styles/paragraph-block-content
-      :contentEditable true
-      :ref (fn [el] (reset! ref el))
-      :on-focus #(dispatch [:set-active-block id])
-      :on-blur #(when (empty? @content-state) (reset! focus nil))
-      :on-key-press #(on-key-press! index %)
-      :on-input #(on-input! content-state caret-location-state index %)
-      :on-paste #(on-paste! content-state caret-location-state %)
-      :dangerouslySetInnerHTML {:__html @content-state}}]))
+  [:<>
+   (when (and (empty? @content-state)
+              (nil? @focus))
+     [:div.blocko-block--paragraph-content
+      {:style styles/paragraph-block-content-empty
+       :on-click #(do
+                    (reset! focus true)
+                    (dispatch [:focus-block
+                               {:id id
+                                :where :end}]))}
+      "Start writing a paragraph ..."])
+   [:div.blocko-block--paragraph-content
+    {:style styles/paragraph-block-content
+     :contentEditable true
+     :ref (fn [el] (reset! ref el))
+     :on-focus #(dispatch [:set-active-block id])
+     :on-blur #(when (empty? @content-state) (reset! focus nil))
+     :on-key-press #(on-key-press! index %)
+     :on-input #(on-input! content-state caret-location-state index %)
+     :on-paste #(on-paste! content-state caret-location-state %)
+     :dangerouslySetInnerHTML {:__html @content-state}}]])
 
 (defn block [id index block]
   (let [ref (r/atom nil)

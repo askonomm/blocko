@@ -150,7 +150,7 @@
 (def paragraph-block-content-empty
   {:outline "none"
    :color "#666"
-   :position "relative"
+   :position "absolute"
    :box-sizing "border-box"
    :padding 0
    :margin 0})
