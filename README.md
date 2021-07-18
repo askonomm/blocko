@@ -1,6 +1,6 @@
 # Blocko
 
-Blocko is a block-based WYSIWYG editor written in ClojureScript and compiled to JavaScript. Currently, Blocko is not yet production ready, so use at your own risk.
+Blocko is a block-based WYSIWYG editor written in ClojureScript meant to be used within JavaScript and ClojureScript projects. Currently, Blocko is not yet production ready, so use at your own risk.
 
 ![Animated gif of Blocko in action](https://github.com/askonomm/blocko/blob/master/demo.gif?raw=true)
 
@@ -67,7 +67,7 @@ blocko.core.init({
 
 ## Data structure
 
-Blocko uses a very simple data structure to define the content of the editor. It's simply an array of objects, each object representing one block.
+Blocko uses a very simple data structure to define the content of the editor. It's simply an array of objects, each object representing one block, an the order that the array is in is also the order at which blocks will be displayed on the editor.
 
 ### Paragraph block
 
