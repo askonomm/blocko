@@ -31,9 +31,9 @@
                              content)])))
 
 (defn ^:export init [args]
-  (let [{:keys [container initialContent onChange]} (js->clj args :keywordize-keys true)]
+  (let [{:keys [container content onChange]} (js->clj args :keywordize-keys true)]
     (dispatch-sync [:initialise-db])
-    (set-content! initialContent true)
+    (set-content! content true)
     (rdom/render [editor onChange true] (.querySelector js/document container))))
 
 (defn run [args]

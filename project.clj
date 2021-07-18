@@ -7,5 +7,6 @@
   :plugins [[camechis/deploy-uberjar "0.3.0"]]
   :license {:name "The MIT License"
             :url "http://opensource.org/licenses/MIT"}
-  :repositories [["releases" {:url "https://clojars.org"}]]
+  :repositories [["releases" {:url "https://clojars.org"
+                              :sign-releases false}]]
   :uberjar-name "blocko.jar")
