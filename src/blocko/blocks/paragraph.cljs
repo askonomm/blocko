@@ -121,6 +121,7 @@
       "Start writing a paragraph ..."])
    [:div.blocko-block--paragraph-content
     {:style styles/paragraph-block-content
+     :data-editable true
      :contentEditable true
      :ref (fn [el] (reset! ref el))
      :on-focus #(dispatch [:set-active-block id])

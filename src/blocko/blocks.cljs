@@ -15,7 +15,7 @@
   (when-let [block-el (.querySelector js/document (str ".blocko-block[data-id='" id "']"))]
     (let [block (utils/find-by-predicate #(= (:id %) id) blocks)]
       (cond (= "paragraph" (get block :type))
-            (.focus (.querySelector block-el ".blocko-block--paragraph-content"))
+            (.focus (.querySelector block-el ".blocko-block--paragraph-content[data-editable='true']"))
             (= "heading" (get block :type))
             (.focus (.querySelector block-el "textarea")))
       (dispatch [:focus-block nil]))))
