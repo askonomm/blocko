@@ -1,5 +1,6 @@
 (ns blocko.core
   (:require
+   [reagent.core :as r]
    [reagent.dom :as rdom]
    [re-frame.core :refer [dispatch dispatch-sync subscribe]]
    [blocko.events]
@@ -37,6 +38,10 @@
 
 (defn run [args]
   (let [{:keys [content on-change]} args]
-    (dispatch-sync [:initialise-db])
-    (set-content! content nil)
-    [editor on-change nil]))
+    (r/create-class
+     {:component-did-mount
+      (fn []
+        (dispatch-sync [:initialise-db])
+        (set-content! content nil))
+      :reagent-render
+      #(editor on-change nil)})))

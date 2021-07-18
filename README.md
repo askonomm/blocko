@@ -9,7 +9,7 @@ Blocko is a block-based WYSIWYG editor written in ClojureScript and compiled to 
 ### Browser
 
 1. Download the latest [release](https://github.com/askonomm/blocko/releases)
-2. Include `blocko.css` and `blocko.js` in your HTML
+2. Include `blocko.js` in your HTML
 
 #### Usage
 
@@ -31,7 +31,7 @@ blocko.core.init({
 
 ### ClojureScript
 
-1. Add `[org.clojars.askonomm/blocko "0.0.1"]` to your dependencies
+1. Add `[org.clojars.askonomm/blocko "0.1"]` to your dependencies
 
 #### Usage
 

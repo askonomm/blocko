@@ -2,7 +2,8 @@
   (:require
    [reagent.core :as r]
    [re-frame.core :refer [dispatch]]
-   [blocko.utils :as utils]))
+   [blocko.utils :as utils]
+   [blocko.styles :as styles]))
 
 (defn on-key-press!
   "Detect if the user pressed the `enter` key or not. If
@@ -14,16 +15,14 @@
             (= 13 (.-keyCode event)))
     (.preventDefault event)
     (let [id (str (random-uuid))]
-      (dispatch
-       [:add-block
-        {:position (+ index 1)
-         :block {:id id
-                 :type "paragraph"
-                 :content ""}}])
-      (dispatch
-       [:focus-block
-        {:id id
-         :where :beginning}]))))
+      (dispatch [:add-block
+                 {:position (+ index 1)
+                  :block {:id id
+                          :type "paragraph"
+                          :content ""}}])
+      (dispatch [:focus-block
+                 {:id id
+                  :where :beginning}]))))
 
 (defn on-input!
   "Whenever a key is pressed, we want to update the `content-state` atom 
@@ -108,23 +107,40 @@
 (defn render
   "Renders the actual DOM output of the paragraph block and hooks to it
   many of its necessary events."
-  [id ref content-state caret-location-state index]
-  [:div.paragraph-content
-   {:contentEditable true
-    :data-placeholder "Start writing a paragraph ..."
-    :ref (fn [el] (reset! ref el))
-    :on-focus #(dispatch [:set-active-block id])
-    :on-key-press #(on-key-press! index %)
-    :on-input #(on-input! content-state caret-location-state index %)
-    :on-paste #(on-paste! content-state caret-location-state %)
-    :dangerouslySetInnerHTML {:__html @content-state}}])
+  [{:keys [id ref focus content-state caret-location-state index]}]
+  (if (and (empty? @content-state)
+           (nil? @focus))
+    [:div.blocko-block--paragraph-content
+     {:style styles/paragraph-block-content-empty
+      :on-click #(do
+                   (reset! focus true)
+                   (dispatch [:focus-block
+                              {:id id
+                               :where :end}]))}
+     "Start writing a paragraph ..."]
+    [:div.blocko-block--paragraph-content
+     {:style styles/paragraph-block-content
+      :contentEditable true
+      :ref (fn [el] (reset! ref el))
+      :on-focus #(dispatch [:set-active-block id])
+      :on-blur #(when (empty? @content-state) (reset! focus nil))
+      :on-key-press #(on-key-press! index %)
+      :on-input #(on-input! content-state caret-location-state index %)
+      :on-paste #(on-paste! content-state caret-location-state %)
+      :dangerouslySetInnerHTML {:__html @content-state}}]))
 
 (defn block [id index block]
   (let [ref (r/atom nil)
         content-state (r/atom (get block :content))
-        caret-location-state (r/atom nil)]
+        caret-location-state (r/atom nil)
+        focus (r/atom nil)]
     (r/create-class
      {:component-did-update
       #(place-caret! ref content-state caret-location-state)
       :reagent-render
-      #(render id ref content-state caret-location-state index)})))
+      #(render {:id id
+                :ref ref
+                :focus focus
+                :content-state content-state
+                :caret-location-state caret-location-state
+                :index index})})))

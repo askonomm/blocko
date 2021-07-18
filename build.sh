@@ -8,6 +8,4 @@ fi
 if [ "$1" == "release" ]; then
     buildcmd="npx shadow-cljs release prod"
     $buildcmd
-    copycsscmd="cp public/blocko.css dist"
-    $copycsscmd
 fi
