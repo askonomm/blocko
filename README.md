@@ -88,6 +88,8 @@ Blocko uses a very simple data structure to define the content of the editor. It
 
 ### Heading block
 
+#### JSON
+
 ```json
 {"id": "uuid",
  "type": "heading",
