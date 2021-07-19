@@ -106,7 +106,7 @@ Blocko uses a very simple data structure to define the content of the editor. It
 
 ## Development
 
-To develop Blocko simply run `./build.sh dev`, which will then compile to `public/js/blocko.js` a development version of Blocko that also auto-reloads as you make changes. After that is done, open `localhost:8000` in your browser and have fun!
+To develop Blocko simply run `./build.sh dev`, which will then compile to `public/js/blocko.js` a development version of Blocko that also auto-reloads as you make changes. After that is done, open `localhost:8080` in your browser and have fun!
 
 Once you're done with development and want to get the production version, then:
 - To get the browser production build, run `./build.sh release` and check inside `dist` for a brand new `blocko.js` file.
