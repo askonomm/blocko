@@ -6,25 +6,25 @@
    [re-frame.core :refer [dispatch]]
    [blocko.styles :as styles]))
 
-(defn add-paragraph [index block-menu]
+(defn add-paragraph [position block-menu]
   (dispatch
    [:add-block
-    {:position index
+    {:position position
      :block {:id (str (random-uuid))
              :type "paragraph"
              :content ""}}])
   (reset! block-menu nil))
 
-(defn add-heading [index block-menu]
+(defn add-heading [position block-menu]
   (dispatch
    [:add-block
-    {:position index
+    {:position position
      :block {:id (str (random-uuid))
              :type "heading"
              :content ""}}])
   (reset! block-menu nil))
 
-(defn block-item-paragraph [index block-menu]
+(defn block-item-paragraph [position block-menu]
   (let [hover? (r/atom nil)]
     (fn []
       [:li
@@ -33,7 +33,7 @@
                  styles/add-block-menu-list-item)
         :on-mouse-enter #(reset! hover? true)
         :on-mouse-leave #(reset! hover? nil)
-        :on-click #(add-paragraph index block-menu)}
+        :on-click #(add-paragraph position block-menu)}
        [:div.blocko-add-block-menu-list-item-icon
         {:style styles/add-block-menu-list-item-icon}
         [:> FontAwesomeIcon {:icon faParagraph}]]
@@ -41,7 +41,7 @@
         {:style styles/add-block-menu-list-item-label}
         "Paragraph"]])))
 
-(defn block-item-heading [index block-menu]
+(defn block-item-heading [position block-menu]
   (let [hover? (r/atom nil)]
     (fn []
       [:li
@@ -50,7 +50,7 @@
                  styles/add-block-menu-list-item)
         :on-mouse-enter #(reset! hover? true)
         :on-mouse-leave #(reset! hover? nil)
-        :on-click #(add-heading index block-menu)}
+        :on-click #(add-heading position block-menu)}
        [:div.blocko-add-block-menu-list-item-icon
         {:style styles/add-block-menu-list-item-icon}
         [:> FontAwesomeIcon {:icon faHeading}]]
@@ -58,7 +58,7 @@
         {:style styles/add-block-menu-list-item-label}
         "Heading"]])))
 
-(defn block [index]
+(defn block [{:keys [position]}]
   (let [block-menu (r/atom nil)
         show-indicator? (r/atom nil)]
     (fn []
@@ -79,5 +79,5 @@
            :on-mouse-leave #(reset! block-menu nil)}
           [:ul.blocko-add-block-menu-list
            {:style styles/add-block-menu-list}
-           [block-item-paragraph index block-menu]
-           [block-item-heading index block-menu]]])])))
+           [block-item-paragraph position block-menu]
+           [block-item-heading position block-menu]]])])))

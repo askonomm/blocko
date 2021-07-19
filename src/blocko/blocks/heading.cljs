@@ -4,30 +4,31 @@
    [re-frame.core :refer [dispatch]]
    [blocko.styles :as styles]))
 
-(defn on-key-press [index event]
+(defn on-key-press [id event]
   (when (or (= "Enter" (.-key event))
             (= 13 (.-keyCode event)))
     (.preventDefault event)
-    (let [id (str (random-uuid))]
+    (let [new-block-id (str (random-uuid))]
       (dispatch
        [:add-block
-        {:position (+ index 1)
-         :block {:id id
+        {:position {:id id
+                    :insert :after}
+         :block {:id new-block-id
                  :type "paragraph"
                  :content ""}}])
       (dispatch
        [:focus-block
-        {:id id
+        {:id new-block-id
          :where :beginning}]))))
 
-(defn on-input [index height event]
+(defn on-input [id height event]
   (dispatch
    [:update-heading-block
-    {:position index
+    {:id id
      :content (.-value (.-target event))}])
   (reset! height (.-scrollHeight (.-target event))))
 
-(defn block [id index block]
+(defn block [id block]
   (let [height (r/atom 30)]
     (fn []
       [:textarea
@@ -35,6 +36,6 @@
         :default-value (get block :content)
         :placeholder "Start writing a heading ..."
         :ref nil #_(fn [el] (when el (reset! height (.-scrollHeight el))))
-        :on-key-press #(on-key-press index %)
+        :on-key-press #(on-key-press id %)
         :on-focus #(dispatch [:set-active-block id])
-        :on-input #(on-input index height %)}])))
+        :on-input #(on-input id height %)}])))

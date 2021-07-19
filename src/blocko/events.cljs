@@ -38,15 +38,13 @@
 
 (reg-event-db
  :update-paragraph-block
- (fn [db [_ {:keys [position content]}]]
-   (let [block (get-in db [:blocks position])
-         new-block (assoc block :content content)]
-     (assoc-in db [:blocks position] new-block))))
+ (fn [db [_ {:keys [id content]}]]
+   (let [blocks (utils/update-by-predicate #(= (:id %) id) {:content content} (get db :blocks))]
+     (assoc db :blocks blocks))))
 
 (reg-event-db
  :update-heading-block
- (fn [db [_ {:keys [position content]}]]
-   (let [block (get-in db [:blocks position])
-         new-block (assoc block :content content)]
-     (assoc-in db [:blocks position] new-block))))
+ (fn [db [_ {:keys [id content]}]]
+   (let [blocks (utils/update-by-predicate #(= (:id %) id) {:content content} (get db :blocks))]
+     (assoc db :blocks blocks))))
 

@@ -20,12 +20,12 @@
             (.focus (.querySelector block-el "textarea")))
       (dispatch [:focus-block nil]))))
 
-(defn content [id index block]
+(defn content [id block]
   (cond
     (= "paragraph" (get block :type))
-    (blocks.paragraph/block id index block)
+    (blocks.paragraph/block id block)
     (= "heading" (get block :type))
-    (blocks.heading/block id index block)
+    (blocks.heading/block id block)
     :else nil))
 
 (defn controls [id]
@@ -35,7 +35,7 @@
      :on-click #(dispatch [:delete-block id])}
     [:> FontAwesomeIcon {:icon faTrash}]]])
 
-(defn block [index block]
+(defn block [block]
   (let [active-block (subscribe [:active-block])
         {:keys [id type]} block]
     (fn []
@@ -45,7 +45,7 @@
         :data-id id}
        (when (= id @active-block)
          [controls id])
-       [content id index block]])))
+       [content id block]])))
 
 (defn blocks []
   (let [state (r/atom [])]
@@ -55,17 +55,19 @@
         (let [new-argv (into {} (rest (r/argv this)))
               new-blocks (get new-argv :blocks)
               block-focus (get new-argv :block-focus)]
+          (reset! state [])
           (reset! state new-blocks)
           (when block-focus
             (focus! block-focus new-blocks))))
       :reagent-render
       (fn []
         [:div.blocko {:style styles/container}
-         [blocks.add/block 0]
+         [blocks.add/block {:position :beginning}]
          (map-indexed
-          (fn [index item]
+          (fn [_ item]
             ^{:key (get item :id)}
             [:<>
-             [block index item]
-             [blocks.add/block (+ index 1)]])
+             [block item]
+             [blocks.add/block {:position {:id (get item :id)
+                                           :insert :after}}]])
           @state)])})))

@@ -1,7 +1,7 @@
 (ns blocko.blocks.paragraph
   (:require
    [reagent.core :as r]
-   [re-frame.core :refer [dispatch]]
+   [re-frame.core :refer [dispatch dispatch-sync]]
    [blocko.utils :as utils]
    [blocko.styles :as styles]))
 
@@ -10,18 +10,19 @@
   the user did, we want to disable the default behaviour, which
   usually is creating a new line, and instead create a new 
   paragraph block below it."
-  [index event]
+  [id event]
   (when (or (= "Enter" (.-key event))
             (= 13 (.-keyCode event)))
     (.preventDefault event)
-    (let [id (str (random-uuid))]
+    (let [new-block-id (str (random-uuid))]
       (dispatch [:add-block
-                 {:position (+ index 1)
-                  :block {:id id
+                 {:position {:id id
+                             :insert :after}
+                  :block {:id new-block-id
                           :type "paragraph"
                           :content ""}}])
       (dispatch [:focus-block
-                 {:id id
+                 {:id new-block-id
                   :where :beginning}]))))
 
 (defn on-input!
@@ -44,13 +45,13 @@
   long or longer than `caret-location-state`). This is needed because 
   after updating `content-state`, the component re-renders, and the caret
   location is lost and we want to set it in the right place again."
-  [content-state caret-location-state index event]
+  [content-state caret-location-state id event]
   (let [content (utils/parse-html (.-innerHTML (.-target event)))]
     (reset! content-state content)
     (reset! caret-location-state (count content))
-    (dispatch
+    (dispatch-sync
      [:update-paragraph-block
-      {:position index
+      {:id id
        :content content}])))
 
 (defn on-paste!
@@ -107,7 +108,7 @@
 (defn render
   "Renders the actual DOM output of the paragraph block and hooks to it
   many of its necessary events."
-  [{:keys [id ref focus content-state caret-location-state index]}]
+  [{:keys [id ref focus content-state caret-location-state]}]
   [:<>
    (when (and (empty? @content-state)
               (nil? @focus))
@@ -126,12 +127,12 @@
      :ref (fn [el] (reset! ref el))
      :on-focus #(dispatch [:set-active-block id])
      :on-blur #(when (empty? @content-state) (reset! focus nil))
-     :on-key-press #(on-key-press! index %)
-     :on-input #(on-input! content-state caret-location-state index %)
+     :on-key-press #(on-key-press! id %)
+     :on-input #(on-input! content-state caret-location-state id %)
      :on-paste #(on-paste! content-state caret-location-state %)
      :dangerouslySetInnerHTML {:__html @content-state}}]])
 
-(defn block [id index block]
+(defn block [id block]
   (let [ref (r/atom nil)
         content-state (r/atom (get block :content))
         caret-location-state (r/atom nil)
@@ -144,5 +145,4 @@
                 :ref ref
                 :focus focus
                 :content-state content-state
-                :caret-location-state caret-location-state
-                :index index})})))
+                :caret-location-state caret-location-state})})))
