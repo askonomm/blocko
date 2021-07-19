@@ -26,8 +26,8 @@ blocko.core.init({
 #### API
 
 - `container`: any DOM element that can be targeted via `querySelector`
-- `content`: a JS or JSON object representing the data
-- `onChange`: a callback function called when content changes
+- `content`: a JS or JSON object representing the initial data
+- `onChange`: a callback function called when content changes with the updated data
 
 ### ClojureScript
 
@@ -61,8 +61,8 @@ blocko.core.init({
 
 #### API
 
-- `content`: a vector containing the data
-- `on-change`: a callback function called when content changes
+- `content`: a vector containing the initial data
+- `on-change`: a callback function called when content changes with the updated data
 
 ## Data structure
 
