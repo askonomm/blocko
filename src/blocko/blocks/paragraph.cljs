@@ -5,6 +5,8 @@
    [blocko.utils :as utils]
    [blocko.styles :as styles]))
 
+(def focus-el-selector ".blocko-block--paragraph-content[data-editable='true']")
+
 (defn on-key-press!
   "Detect if the user pressed the `enter` key or not. If
   the user did, we want to disable the default behaviour, which
@@ -94,11 +96,13 @@
   "
   [ref content-state caret-location-state]
   (when (and (not (nil? @caret-location-state))
-             (>= (count @content-state) @caret-location-state)
-             (first (.-childNodes @ref)))
+             (>= (count @content-state) @caret-location-state))
     (let [selection (.getSelection js/window)
-          range (.createRange js/document)]
-      (.setStart range (first (.-childNodes @ref)) @caret-location-state)
+          range (.createRange js/document)
+          first-child-node (first (.-childNodes @ref))]
+      (if first-child-node
+        (.setStart range (first (.-childNodes @ref)) @caret-location-state)
+        (.setStart range @ref @caret-location-state))
       (.collapse range true)
       (.removeAllRanges selection)
       (.addRange selection range)
