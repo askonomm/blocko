@@ -18,27 +18,24 @@
         (conj blocks block)
 
         :else
-        (vec
-         (flatten
-          (map-indexed
-           (fn [_ item]
-             (if (= (get item :id) (get position :id))
-               (if (= (get position :insert) :before)
-                 [block item]
-                 [item block])
-               item)) blocks)))))
+        (flatten
+         (mapv
+          (fn [item]
+            (if (= (get item :id) (get position :id))
+              (if (= (get position :insert) :before)
+                [block item]
+                [item block])
+              item)) blocks))))
 
 (defn block<-blocks
   "Takes an input of `blocks` from which it removes whatever
-  block is occupying space on given `index`, and returns the
+  block is occupying space with a given `id`, and returns the
   result."
   [blocks id]
-  (vec
-   (remove nil?
-           (map-indexed
-            (fn [_ itm]
-              (when-not (= (get itm :id) id)
-                itm)) blocks))))
+  (remove nil?
+          (mapv (fn [i]
+                  (when-not (= (get i :id) id)
+                    i)) blocks)))
 
 (defn parse-html
   "Takes in a raw string of `html`, and then removes all HTML
