@@ -4,6 +4,8 @@
    [re-frame.core :refer [dispatch]]
    [blocko.styles :as styles]))
 
+(def focus-el-selector "textarea")
+
 (defn on-key-press [id event]
   (when (or (= "Enter" (.-key event))
             (= 13 (.-keyCode event)))
