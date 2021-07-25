@@ -27,12 +27,21 @@
     (blocks.heading/block id block)
     :else nil))
 
+(defn delete-control [id]
+  (let [hover? (r/atom nil)]
+    (fn []
+      [:div.blocko-control
+       {:style (if @hover?
+                 (styles/style :control-hover)
+                 (styles/style :control))
+        :on-mouse-enter #(reset! hover? true)
+        :on-mouse-leave #(reset! hover? nil)
+        :on-click #(dispatch [:delete-block id])}
+       [icons/trash (styles/style :control-icon-color) true]])))
+
 (defn controls [id]
   [:div.blocko-controls {:style (styles/style :controls)}
-   [:div.blocko-control
-    {:style (styles/style :control)
-     :on-click #(dispatch [:delete-block id])}
-    icons/trash]])
+   [delete-control id]])
 
 (defn block [block]
   (let [active-block (subscribe [:active-block])

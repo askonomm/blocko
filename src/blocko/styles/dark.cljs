@@ -24,6 +24,12 @@
    :box-sizing "border-box"
    :position "relative"})
 
+(def control-hover
+  {:cursor "pointer"
+   :opacity "1"
+   :box-sizing "border-box"
+   :position "relative"})
+
 (def block
   {:color "#fbfbfb"
    :box-sizing "border-box"
@@ -178,16 +184,19 @@
   {:container container
    :controls controls
    :control control
+   :control-icon-color "#ffffff"
    :block block
    :add-block add-block
    :add-block-indicator add-block-indicator
    :add-block-button add-block-button
+   :add-block-button-icon-color "#111111"
    :add-block-menu add-block-menu
    :add-block-menu-list add-block-menu-list
    :add-block-menu-list-item add-block-menu-list-item
    :add-block-menu-list-item-hover add-block-menu-list-item-hover
    :add-block-menu-list-item-icon add-block-menu-list-item-icon
    :add-block-menu-list-item-label add-block-menu-list-item-label
+   :add-block-menu-list-item-icon-color "#ffffff"
    :paragraph-block-content paragraph-block-content
    :paragraph-block-content-empty paragraph-block-content-empty
    :heading-block-content heading-block-content})

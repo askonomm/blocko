@@ -1,10 +1,9 @@
 (ns blocko.blocks.add
   (:require
-   ["@fortawesome/react-fontawesome" :refer (FontAwesomeIcon)]
-   ["@fortawesome/free-solid-svg-icons" :refer (faPlus faParagraph faHeading)]
    [reagent.core :as r]
    [re-frame.core :refer [dispatch]]
-   [blocko.styles :as styles]))
+   [blocko.styles :as styles]
+   [blocko.icons :as icons]))
 
 (defn add-paragraph [position block-menu]
   (dispatch
@@ -36,7 +35,7 @@
         :on-click #(add-paragraph position block-menu)}
        [:div.blocko-add-block-menu-list-item-icon
         {:style (styles/style :add-block-menu-list-item-icon)}
-        [:> FontAwesomeIcon {:icon faParagraph}]]
+        [icons/paragraph (styles/style :add-block-menu-list-item-icon-color)]]
        [:div.blocko-add-block-menu-list-item-label
         {:style (styles/style :add-block-menu-list-item-label)}
         "Paragraph"]])))
@@ -53,7 +52,7 @@
         :on-click #(add-heading position block-menu)}
        [:div.blocko-add-block-menu-list-item-icon
         {:style (styles/style :add-block-menu-list-item-icon)}
-        [:> FontAwesomeIcon {:icon faHeading}]]
+        [icons/heading (styles/style :add-block-menu-list-item-icon-color)]]
        [:div.blocko-add-block-menu-list-item-label
         {:style (styles/style :add-block-menu-list-item-label)}
         "Heading"]])))
@@ -72,7 +71,7 @@
           [:div.blocko-add-block-btn
            {:style (styles/style :add-block-button)
             :on-click #(reset! block-menu true)}
-           [:> FontAwesomeIcon {:icon faPlus}]]])
+           [icons/plus (styles/style :add-block-button-icon-color)]]])
        (when @block-menu
          [:div.blocko-add-block-menu
           {:style (styles/style :add-block-menu)
