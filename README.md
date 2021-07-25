@@ -70,7 +70,7 @@ blocko.core.init({
 
 To configure Blocko you can pass the configuration options to the `options` argument.
 
-For example, to change the theme in JS, do this:
+For example, to change the theme in ClojureScript, do this:
 
 ```clojure
 (ns your-app
