@@ -27,6 +27,7 @@ blocko.core.init({
 
 - `container`: any DOM element that can be targeted via `querySelector`
 - `content`: a JS or JSON object representing the initial data
+- `options`: A JS or JSON object representing configuration
 - `onChange`: a callback function called when content changes with the updated data
 
 ### ClojureScript
@@ -62,7 +63,43 @@ blocko.core.init({
 #### API
 
 - `content`: a vector containing the initial data
+- `options`: A map representing configuration
 - `on-change`: a callback function called when content changes with the updated data
+
+## Options
+
+To configure Blocko you can pass the configuration options to the `options` argument.
+
+For example, to change the theme in JS, do this:
+
+```clojure
+(ns your-app
+  (:require [blocko.core :as blocko]))
+
+(blocko/run 
+  {:content []
+   :options {:theme "dark"}
+   :on-change #(fn [content] (prn "store content in your database here"))})
+```
+
+Or in JS, do this:
+
+```javascript
+blocko.core.init({
+    container: '#editor',
+    content: [],
+    options: {
+      theme: "dark"
+    },
+    onChange: (content) => {
+        // store `content` in your database here.
+    }
+});
+```
+
+### Available options
+
+- `theme` - accepts a string which is either "light" or "dark".
 
 ## Data structure
 
