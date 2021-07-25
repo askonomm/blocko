@@ -1,13 +1,12 @@
 (ns blocko.blocks
   (:require
-   ["@fortawesome/react-fontawesome" :refer (FontAwesomeIcon)]
-   ["@fortawesome/free-solid-svg-icons" :refer (faTrash)]
    [reagent.core :as r]
    [re-frame.core :refer [dispatch subscribe]]
    [blocko.events]
    [blocko.blocks.paragraph :as blocks.paragraph]
    [blocko.blocks.heading :as blocks.heading]
    [blocko.blocks.add :as blocks.add]
+   [blocko.icons :as icons]
    [blocko.utils :as utils]
    [blocko.styles :as styles]))
 
@@ -33,7 +32,7 @@
    [:div.blocko-control
     {:style (styles/style :control)
      :on-click #(dispatch [:delete-block id])}
-    [:> FontAwesomeIcon {:icon faTrash}]]])
+    icons/trash]])
 
 (defn block [block]
   (let [active-block (subscribe [:active-block])
