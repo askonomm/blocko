@@ -35,9 +35,9 @@
     (fn []
       [:textarea
        {:style (merge styles/heading-block-content {:height (str @height "px")})
+        :ref (fn [el] (when el (reset! height (.-scrollHeight el))))
         :default-value (get block :content)
         :placeholder "Start writing a heading ..."
-        :ref nil #_(fn [el] (when el (reset! height (.-scrollHeight el))))
         :on-key-press #(on-key-press id %)
         :on-focus #(dispatch [:set-active-block id])
         :on-input #(on-input id height %)}])))
