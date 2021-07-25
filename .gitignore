@@ -21,3 +21,4 @@ pom.xml.asc
 package-lock.json
 .lsp/
 dist/
+sftp-config.json
