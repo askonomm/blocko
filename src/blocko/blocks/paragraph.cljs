@@ -70,16 +70,22 @@
   caret placement would break on paste."
   [content-state caret-location-state event]
   (.preventDefault event)
-  (.then
-   (.readText (.-clipboard js/navigator))
-   (fn [clip]
-     (let [selection (.getSelection js/window)
-           caret-location (.-anchorOffset selection)
-           pasted-content (utils/parse-html clip)
-           new-content (utils/string->string @content-state pasted-content caret-location)
-           new-caret-location (+ caret-location (count pasted-content))]
-       (reset! content-state new-content)
-       (reset! caret-location-state new-caret-location)))))
+  (let [selection (.getSelection js/window)
+        caret-location (.-anchorOffset selection)]
+    (if-let [clip (.getData (.-clipboardData event) "text/plain")]
+      (let [pasted-content (utils/parse-html clip)
+            new-content (utils/string->string @content-state pasted-content caret-location)
+            new-caret-location (+ caret-location (count pasted-content))]
+        (reset! content-state new-content)
+        (reset! caret-location-state new-caret-location))
+      (.then
+       (.readText (.-clipboard js/navigator))
+       (fn [clip]
+         (let [pasted-content (utils/parse-html clip)
+               new-content (utils/string->string @content-state pasted-content caret-location)
+               new-caret-location (+ caret-location (count pasted-content))]
+           (reset! content-state new-content)
+           (reset! caret-location-state new-caret-location)))))))
 
 (defn place-caret!
   "Places a caret at the desired `caret-location-state` position
