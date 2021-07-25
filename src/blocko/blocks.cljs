@@ -29,9 +29,9 @@
     :else nil))
 
 (defn controls [id]
-  [:div.blocko-controls {:style styles/controls}
+  [:div.blocko-controls {:style (styles/style :controls)}
    [:div.blocko-control
-    {:style styles/control
+    {:style (styles/style :control)
      :on-click #(dispatch [:delete-block id])}
     [:> FontAwesomeIcon {:icon faTrash}]]])
 
@@ -40,7 +40,7 @@
         {:keys [id type]} block]
     (fn []
       [:div.blocko-block
-       {:style styles/block
+       {:style (styles/style :block)
         :class type
         :data-id id}
        (when (= id @active-block)
@@ -61,7 +61,7 @@
             (focus! block-focus new-blocks))))
       :reagent-render
       (fn []
-        [:div.blocko {:style styles/container}
+        [:div.blocko {:style (styles/style :container)}
          [blocks.add/block {:position :beginning}]
          (map-indexed
           (fn [_ item]

@@ -117,7 +117,7 @@
    (when (and (empty? @content-state)
               (nil? @focus))
      [:div.blocko-block--paragraph-content
-      {:style styles/paragraph-block-content-empty
+      {:style (styles/style :paragraph-block-content-empty)
        :on-click #(do
                     (reset! focus true)
                     (dispatch [:focus-block
@@ -125,7 +125,7 @@
                                 :where :end}]))}
       "Start writing a paragraph ..."])
    [:div.blocko-block--paragraph-content
-    {:style styles/paragraph-block-content
+    {:style (styles/style :paragraph-block-content)
      :data-editable true
      :contentEditable true
      :ref (fn [el] (reset! ref el))

@@ -34,7 +34,7 @@
   (let [height (r/atom 30)]
     (fn []
       [:textarea
-       {:style (merge styles/heading-block-content {:height (str @height "px")})
+       {:style (merge (styles/style :heading-block-content) {:height (str @height "px")})
         :ref (fn [el] (when el (reset! height (.-scrollHeight el))))
         :default-value (get block :content)
         :placeholder "Start writing a heading ..."
