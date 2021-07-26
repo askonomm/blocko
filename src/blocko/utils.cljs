@@ -37,6 +37,11 @@
                   (when-not (= (get i :id) id)
                     i)) blocks)))
 
+(defn block-before-block [id blocks]
+  (let [current-block-index (first (keep-indexed #(when (= (:id %2) id) %1) blocks))]
+    (when-not (= 0 current-block-index)
+      (get (vec blocks) (- current-block-index 1)))))
+
 (defn parse-html
   "Takes in a raw string of `html`, and then removes all HTML
   elements other than a `a`, `u`, `b`, `i`. It also removes 

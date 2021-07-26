@@ -10,13 +10,37 @@
    [blocko.utils :as utils]
    [blocko.styles :as styles]))
 
-(defn focus! [{:keys [id _]} blocks]
+(defn focus-at! 
+  "For a given `block`, and its `block-el`, will attempt to set
+  the caret position according to `where` within the `focus-el-selector`."
+  [block block-el focus-el-selector where]
+  (if (= :beginning where)
+    (.focus (.querySelector block-el focus-el-selector))
+    (let [content (get block :content)
+          selection (.getSelection js/window)
+          range (.createRange js/document)
+          el (.querySelector block-el focus-el-selector)
+          first-child-node (first (.-childNodes el))]
+      (if first-child-node
+        (.setStart range first-child-node (count content))
+        (.setStart range el (count content)))
+      (.collapse range true)
+      (.removeAllRanges selection)
+      (.addRange selection range)
+      (.focus (.querySelector block-el focus-el-selector)))))
+
+(defn focus! 
+  "Attempts to capture the DOM element for the block with a given `id`,
+  and to find the actual block data itself as well by a given `id`, which
+  it then tries to focus in according to `where`. After which, it will
+  set the `:block-focus` state to `nil`."
+  [{:keys [id where]} blocks]
   (when-let [block-el (.querySelector js/document (str ".blocko-block[data-id='" id "']"))]
     (let [block (utils/find-by-predicate #(= (:id %) id) blocks)]
       (cond (= "paragraph" (get block :type))
-            (.focus (.querySelector block-el blocks.paragraph/focus-el-selector))
+            (focus-at! block block-el blocks.paragraph/focus-el-selector where)
             (= "heading" (get block :type))
-            (.focus (.querySelector block-el blocks.heading/focus-el-selector)))
+            (focus-at! block block-el blocks.heading/focus-el-selector where))
       (dispatch [:focus-block nil]))))
 
 (defn content [id block]

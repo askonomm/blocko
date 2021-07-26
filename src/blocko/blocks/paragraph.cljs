@@ -7,25 +7,51 @@
 
 (def focus-el-selector ".blocko-block--paragraph-content[data-editable='true']")
 
+(defn create-block! 
+  "Creates a new block and focuses the cursor in it."
+  [id event]
+  (.preventDefault event)
+  (let [new-block-id (str (random-uuid))]
+    (dispatch [:add-block
+               {:position {:id id
+                           :insert :after}
+                :block {:id new-block-id
+                        :type "paragraph"
+                        :content ""}}])
+    (dispatch [:focus-block
+               {:id new-block-id
+                :where :beginning}])))
+
+(defn delete-block! 
+  "Checks if the content is empty and if it is, byebye block.
+  It does dispatch a special event however, which tries to 
+  find a block before this one - and then focus in it, for that smooth
+  user experience sweetness."
+  [id content event]
+  (when (empty? content)
+    (.preventDefault event)
+    (dispatch [:delete-block-and-focus-on-previous id])))
+
 (defn on-key-press!
-  "Detect if the user pressed the `enter` key or not. If
+  "Use case 1: 
+  
+  Detect if the user pressed the `enter` key or not. If
   the user did, we want to disable the default behaviour, which
   usually is creating a new line, and instead create a new 
-  paragraph block below it."
-  [id event]
-  (when (or (= "Enter" (.-key event))
+  paragraph block below it.
+  
+  Use case 2:
+  
+  Detect if the user pressed the `backspace` key. if the the 
+  user did, and if there is no more `content`, delete the block."
+  [id content event]
+  (cond (or (= "Enter" (.-key event))
             (= 13 (.-keyCode event)))
-    (.preventDefault event)
-    (let [new-block-id (str (random-uuid))]
-      (dispatch [:add-block
-                 {:position {:id id
-                             :insert :after}
-                  :block {:id new-block-id
-                          :type "paragraph"
-                          :content ""}}])
-      (dispatch [:focus-block
-                 {:id new-block-id
-                  :where :beginning}]))))
+        (create-block! id event)
+
+        (or (= "Backspace" (.-key event))
+            (= 8 (.-keyCode event)))
+        (delete-block! id content event)))
 
 (defn on-input!
   "Whenever a key is pressed, we want to update the `content-state` atom 
@@ -34,88 +60,88 @@
   
   Reason being that whenever you type new text into the `contentEditable`, 
   even though we do update the global state, it doesn't really update 
-  that component's inner `content-state` atom, and so when a paste 
+  that component's inner `content` atom, and so when a paste 
   happens it only takes into account the initial state of it, and not the 
   new one, resulting in cursor placement then going wrong and setting in 
   the beginning of the text instead of the end of the paste location, 
   because the pasted index is further away than the actual content has 
   indexes.
   
-  Oh, almost forgot, we also update the `caret-location-state`, so that 
+  Oh, almost forgot, we also update the `caret-location`, so that 
   the component would trigger caret positioning (which it does only if 
-  the `caret-location-state` is not `nil` and the `content-state` is as 
-  long or longer than `caret-location-state`). This is needed because 
-  after updating `content-state`, the component re-renders, and the caret
+  the `caret-location` is not `nil` and the `content` is as 
+  long or longer than `caret-location`). This is needed because 
+  after updating `content`, the component re-renders, and the caret
   location is lost and we want to set it in the right place again."
-  [content-state caret-location-state id event]
-  (let [content (utils/parse-html (.-innerHTML (.-target event)))]
-    (reset! content-state content)
-    (reset! caret-location-state (count content))
+  [content caret-location id event]
+  (let [new-content (utils/parse-html (.-innerHTML (.-target event)))]
+    (reset! content new-content)
+    (reset! caret-location (count new-content))
     (dispatch-sync
      [:update-paragraph-block
       {:id id
-       :content content}])))
+       :content new-content}])))
 
 (defn on-paste!
   "Prevents the default behaviour of a paste event from happening, and 
   instead reads the contents of the clipboard, parses it (to remove any
   horrible mark-up that might come with it), and then inserts it at the
-  desired position inside and updates the `content-state` atom with the
+  desired position inside and updates the `content` atom with the
   new content, as well as updates the `caret-location-state` atom with 
   the new caret position which is what the caret location was when 
   pasting + the length of the pasted content.
   
-  We update the `caret-location-state` atom so that we could do caret 
+  We update the `caret-location` atom so that we could do caret 
   placement on a `:component-did-update` event, because otherwise the 
   caret placement would break on paste."
-  [content-state caret-location-state event]
+  [content caret-location event]
   (.preventDefault event)
   (let [selection (.getSelection js/window)
-        caret-location (.-anchorOffset selection)]
+        caret-offset (.-anchorOffset selection)]
     (if-let [clip (.getData (.-clipboardData event) "text/plain")]
       (let [pasted-content (utils/parse-html clip)
-            new-content (utils/string->string @content-state pasted-content caret-location)
-            new-caret-location (+ caret-location (count pasted-content))]
-        (reset! content-state new-content)
-        (reset! caret-location-state new-caret-location))
+            new-content (utils/string->string @content pasted-content caret-offset)
+            new-caret-location (+ caret-offset (count pasted-content))]
+        (reset! content new-content)
+        (reset! caret-location new-caret-location))
       (.then
        (.readText (.-clipboard js/navigator))
        (fn [clip]
          (let [pasted-content (utils/parse-html clip)
-               new-content (utils/string->string @content-state pasted-content caret-location)
-               new-caret-location (+ caret-location (count pasted-content))]
-           (reset! content-state new-content)
-           (reset! caret-location-state new-caret-location)))))))
+               new-content (utils/string->string @content pasted-content caret-offset)
+               new-caret-location (+ caret-offset (count pasted-content))]
+           (reset! content new-content)
+           (reset! caret-location new-caret-location)))))))
 
 (defn place-caret!
-  "Places a caret at the desired `caret-location-state` position
+  "Places a caret at the desired `caret-location` position
   inside the `ref` element. But only does it if the length of 
-  `content-state` is the same or exceeds `caret-location-state`. This 
+  `content` is the same or exceeds `caret-location`. This 
   is because we cannot place a caret in an index that does not exist i.e
   is out of range.
   
   Once the caret has been placed in its position, we reset the 
-  `caret-location-state` to `nil`, so that this placement would not occur 
-  on every render, but only when we set the `caret-location-state` to 
-  something other than `nil` (and, like said before, `content-state` 
-  either is the same or exceeds `caret-location-state`).
+  `caret-location` to `nil`, so that this placement would not occur 
+  on every render, but only when we set the `caret-location` to 
+  something other than `nil` (and, like said before, `content` 
+  either is the same or exceeds `caret-location`).
   "
-  [ref content-state caret-location-state]
-  (when (and (not (nil? @caret-location-state))
-             (>= (count @content-state) @caret-location-state))
+  [ref content caret-location]
+  (when (and (not (nil? @caret-location))
+             (>= (count @content) @caret-location))
     (let [selection (.getSelection js/window)
           range (.createRange js/document)
           first-child-node (first (.-childNodes @ref))]
       (if first-child-node
-        (.setStart range (first (.-childNodes @ref)) @caret-location-state)
-        (.setStart range @ref @caret-location-state))
+        (.setStart range first-child-node @caret-location)
+        (.setStart range @ref @caret-location))
       (.collapse range true)
       (.removeAllRanges selection)
       (.addRange selection range)
       (.focus @ref)
-      (reset! caret-location-state nil))))
+      (reset! caret-location nil))))
 
-(defn on-placeholder-click! 
+(defn on-placeholder-click!
   "When a user clicks the placeholder, we want to set the `focus` 
   state to `true` (which makes the placeholder disappear) and also
   dispatch a `:focus-block` event that actually makes sure the cursor
@@ -128,9 +154,9 @@
 (defn render
   "Renders the actual DOM output of the paragraph block and hooks to it
   many of its necessary events."
-  [{:keys [id ref focus content-state caret-location-state]}]
+  [{:keys [id ref focus content caret-location]}]
   [:<>
-   (when (and (empty? @content-state)
+   (when (and (empty? @content)
               (nil? @focus))
      [:div.blocko-block--paragraph-content
       {:style (styles/style :paragraph-block-content-empty)
@@ -142,23 +168,23 @@
      :contentEditable true
      :ref (fn [el] (reset! ref el))
      :on-focus #(dispatch [:set-active-block id])
-     :on-blur #(when (empty? @content-state) (reset! focus nil))
-     :on-key-press #(on-key-press! id %)
-     :on-input #(on-input! content-state caret-location-state id %)
-     :on-paste #(on-paste! content-state caret-location-state %)
-     :dangerouslySetInnerHTML {:__html @content-state}}]])
+     :on-blur #(when (empty? @content) (reset! focus nil))
+     :on-key-down #(on-key-press! id @content %)
+     :on-input #(on-input! content caret-location id %)
+     :on-paste #(on-paste! content caret-location %)
+     :dangerouslySetInnerHTML {:__html @content}}]])
 
 (defn block [id block]
   (let [ref (r/atom nil)
-        content-state (r/atom (get block :content))
-        caret-location-state (r/atom nil)
+        content (r/atom (get block :content))
+        caret-location (r/atom nil)
         focus (r/atom nil)]
     (r/create-class
      {:component-did-update
-      #(place-caret! ref content-state caret-location-state)
+      #(place-caret! ref content caret-location)
       :reagent-render
       #(render {:id id
                 :ref ref
                 :focus focus
-                :content-state content-state
-                :caret-location-state caret-location-state})})))
+                :content content
+                :caret-location caret-location})})))

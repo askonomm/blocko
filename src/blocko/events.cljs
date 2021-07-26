@@ -36,6 +36,15 @@
    (let [blocks (get db :blocks)]
      (assoc db :blocks (utils/block<-blocks blocks id)))))
 
+(reg-event-fx
+ :delete-block-and-focus-on-previous
+ (fn [cofx [_ id]]
+   (let [blocks (get-in cofx [:db :blocks])
+         prev-block (utils/block-before-block id blocks)]
+     {:dispatch-n [[:focus-block {:id (get prev-block :id)
+                                  :where :end}]
+                   [:delete-block id]]})))
+
 (reg-event-db
  :update-paragraph-block
  (fn [db [_ {:keys [id content]}]]
