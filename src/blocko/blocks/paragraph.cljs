@@ -115,6 +115,16 @@
       (.focus @ref)
       (reset! caret-location-state nil))))
 
+(defn on-placeholder-click! 
+  "When a user clicks the placeholder, we want to set the `focus` 
+  state to `true` (which makes the placeholder disappear) and also
+  dispatch a `:focus-block` event that actually makes sure the cursor
+  ends up focused within the paragraph `contentEditable` as well."
+  [focus id]
+  (reset! focus true)
+  (dispatch [:focus-block
+             {:id id
+              :where :end}]))
 (defn render
   "Renders the actual DOM output of the paragraph block and hooks to it
   many of its necessary events."
@@ -124,11 +134,7 @@
               (nil? @focus))
      [:div.blocko-block--paragraph-content
       {:style (styles/style :paragraph-block-content-empty)
-       :on-click #(do
-                    (reset! focus true)
-                    (dispatch [:focus-block
-                               {:id id
-                                :where :end}]))}
+       :on-click #(on-placeholder-click! focus id)}
       "Start writing a paragraph ..."])
    [:div.blocko-block--paragraph-content
     {:style (styles/style :paragraph-block-content)
