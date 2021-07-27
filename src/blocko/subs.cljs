@@ -8,9 +8,9 @@
    (get db :blocks)))
 
 (reg-sub
- :block-focus
+ :focus
  (fn [db _]
-   (get db :block-focus)))
+   (get db :focus)))
 
 (reg-sub
  :active-block

@@ -37,10 +37,35 @@
                   (when-not (= (get i :id) id)
                     i)) blocks)))
 
-(defn block-before-block [id blocks]
+(defn block-before-block
+  "Gets the block previous to the block corresponding to `id` 
+  within a set of given `blocks`."
+  [id blocks]
   (let [current-block-index (first (keep-indexed #(when (= (:id %2) id) %1) blocks))]
     (when-not (= 0 current-block-index)
       (get (vec blocks) (- current-block-index 1)))))
+
+(defn focus-block-in-position!
+  "For a given `block`, and its `el`, will attempt to set
+  the caret position according to `where` within the `focus-el-selector`."
+  [content el where]
+  (cond (= :beginning where)
+        (.focus el)
+
+        :else
+        (let [selection (.getSelection js/window)
+              range (.createRange js/document)
+              first-child-node (first (.-childNodes el))
+              offset (if (= :end where)
+                       (count content)
+                       where)]
+          (if first-child-node
+            (.setStart range first-child-node offset)
+            (.setStart range el offset))
+          (.collapse range true)
+          (.removeAllRanges selection)
+          (.addRange selection range)
+          (.focus el))))
 
 (defn parse-html
   "Takes in a raw string of `html`, and then removes all HTML

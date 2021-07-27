@@ -7,7 +7,7 @@
 
 (def focus-el-selector ".blocko-block--paragraph-content[data-editable='true']")
 
-(defn create-block! 
+(defn create-block!
   "Creates a new block and focuses the cursor in it."
   [id event]
   (.preventDefault event)
@@ -18,11 +18,11 @@
                 :block {:id new-block-id
                         :type "paragraph"
                         :content ""}}])
-    (dispatch [:focus-block
+    (dispatch [:set-focus
                {:id new-block-id
                 :where :beginning}])))
 
-(defn delete-block! 
+(defn delete-block!
   "Checks if the content is empty and if it is, byebye block.
   It does dispatch a special event however, which tries to 
   find a block before this one - and then focus in it, for that smooth
@@ -127,19 +127,8 @@
   either is the same or exceeds `caret-location`).
   "
   [ref content caret-location]
-  (when (and (not (nil? @caret-location))
-             (>= (count @content) @caret-location))
-    (let [selection (.getSelection js/window)
-          range (.createRange js/document)
-          first-child-node (first (.-childNodes @ref))]
-      (if first-child-node
-        (.setStart range first-child-node @caret-location)
-        (.setStart range @ref @caret-location))
-      (.collapse range true)
-      (.removeAllRanges selection)
-      (.addRange selection range)
-      (.focus @ref)
-      (reset! caret-location nil))))
+  (utils/focus-block-in-position! @content @ref @caret-location)
+  (reset! caret-location nil))
 
 (defn on-placeholder-click!
   "When a user clicks the placeholder, we want to set the `focus` 
@@ -148,7 +137,7 @@
   ends up focused within the paragraph `contentEditable` as well."
   [focus id]
   (reset! focus true)
-  (dispatch [:focus-block
+  (dispatch [:set-focus
              {:id id
               :where :end}]))
 (defn render

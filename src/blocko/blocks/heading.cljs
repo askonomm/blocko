@@ -19,7 +19,7 @@
                  :type "paragraph"
                  :content ""}}])
       (dispatch
-       [:focus-block
+       [:focus
         {:id new-block-id
          :where :beginning}]))))
 

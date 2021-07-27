@@ -21,9 +21,9 @@
      (assoc db :blocks (utils/block->blocks blocks block position)))))
 
 (reg-event-db
- :focus-block
+ :set-focus
  (fn [db [_ v]]
-   (assoc db :block-focus v)))
+   (assoc db :focus v)))
 
 (reg-event-db
  :set-active-block
@@ -41,8 +41,8 @@
  (fn [cofx [_ id]]
    (let [blocks (get-in cofx [:db :blocks])
          prev-block (utils/block-before-block id blocks)]
-     {:dispatch-n [[:focus-block {:id (get prev-block :id)
-                                  :where :end}]
+     {:dispatch-n [[:set-focus {:id (get prev-block :id)
+                                :where :end}]
                    [:delete-block id]]})))
 
 (reg-event-db

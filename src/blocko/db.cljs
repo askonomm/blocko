@@ -2,5 +2,5 @@
 
 (def default-db
   {:blocks []
-   :block-in-focus nil
+   :focus nil
    :active-block nil})

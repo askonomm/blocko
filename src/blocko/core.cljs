@@ -9,25 +9,32 @@
    [blocko.blocks :as blocks]))
 
 (defn editor [on-change-callback js?]
-  (let [blocks-sub (subscribe [:blocks])
-        block-focus (subscribe [:block-focus])]
-    (fn []
-      (when-not (nil? @blocks-sub)
-        (if js?
-          (on-change-callback (utils/edn->js @blocks-sub))
-          (on-change-callback @blocks-sub)))
-      [blocks/blocks
-       {:blocks @blocks-sub
-        :block-focus @block-focus}])))
+  (let [blocks (subscribe [:blocks])
+        focus (subscribe [:focus])]
+    (r/create-class
+     {:component-did-update
+      #(when-not (nil? @blocks)
+         (if js?
+           (on-change-callback (utils/edn->js @blocks))
+           (on-change-callback @blocks)))
+      :reagent-render
+      (fn []
+        [blocks/blocks
+         {:blocks @blocks
+          :focus @focus}])})))
 
 (defn set-content! [content js?]
   (if (empty? content)
-    (dispatch [:add-block
-               {:position 0
-                :block
-                {:id (str (random-uuid))
-                 :type "paragraph"
-                 :content ""}}])
+    (let [new-block-id (str (random-uuid))]
+      (dispatch-sync [:add-block
+                      {:position 0
+                       :block
+                       {:id (str (random-uuid))
+                        :type "paragraph"
+                        :content ""}}])
+      (dispatch-sync [:set-focus
+                      {:id new-block-id
+                       :where :beginning}]))
     (dispatch [:set-blocks
                (if js?
                  (utils/js->edn content)
