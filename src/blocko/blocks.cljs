@@ -78,8 +78,8 @@
       (fn []
         [:div.blocko {:style (styles/style :container)}
          [blocks.add/block {:position :beginning}]
-         (map-indexed
-          (fn [_ item]
+         (map
+          (fn [item]
             ^{:key (get item :id)}
             [:<>
              [block item]
