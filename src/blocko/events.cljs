@@ -38,10 +38,13 @@
      (merge
       {:db (assoc (:db cofx) :blocks updated-blocks)}
       (when (empty? updated-blocks)
-        {:dispatch
-         [:add-block {:position 0
-                      :block {:id (str (random-uuid))
-                              :type "paragraph"}}]})))))
+        (let [new-block-id (str (random-uuid))]
+          {:dispatch-n
+           [[:add-block {:position 0
+                         :block {:id new-block-id
+                                 :type "paragraph"}}]
+            [:set-focus {:id new-block-id
+                         :where :beginning}]]}))))))
 
 (reg-event-fx
  :delete-block-and-focus-on-previous
