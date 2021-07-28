@@ -32,7 +32,7 @@
     (.preventDefault event)
     (dispatch [:delete-block-and-focus-on-previous id])))
 
-(defn on-key-press!
+(defn on-key-down!
   "Use case 1: 
   
   Detect if the user pressed the `enter` key or not. If
@@ -158,7 +158,7 @@
      :ref (fn [el] (reset! ref el))
      :on-focus #(dispatch [:set-active-block id])
      :on-blur #(when (empty? @content) (reset! focus nil))
-     :on-key-down #(on-key-press! id @content %)
+     :on-key-down #(on-key-down! id @content %)
      :on-input #(on-input! content caret-location id %)
      :on-paste #(on-paste! content caret-location %)
      :dangerouslySetInnerHTML {:__html @content}}]])
