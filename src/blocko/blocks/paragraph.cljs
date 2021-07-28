@@ -31,6 +31,21 @@
   (.preventDefault event)
   (dispatch [:delete-block-and-focus-on-previous id]))
 
+(defn delete-from-block!
+  "Depending on whether or not we have a range selected or not, 
+  it either deletes a range or a singular character at a time."
+  [content caret-location event]
+  (.preventDefault event)
+  (let [selection (.getSelection js/window)
+        base-offset (.-baseOffset selection)
+        extent-offset (.-extentOffset selection)]
+    (when (< base-offset extent-offset)
+      (reset! content (utils/string<-string @content base-offset extent-offset))
+      (reset! caret-location base-offset))
+    (when (= base-offset extent-offset)
+      (reset! content (utils/string<-string @content (- base-offset 1) base-offset))
+      (reset! caret-location (- base-offset 1)))))
+
 (defn on-key-down!
   "Use case 1: 
   
@@ -41,17 +56,29 @@
   
   Use case 2:
   
-  Detect if the user pressed the `backspace` key. if the the 
-  user did, and if there is no more `content`, delete the block."
-  [id content event]
+  Detect if the user pressed the `backspace` key. If the the 
+  user did, and if there is no more `content`, delete the block.
+  
+  Use case 3:
+  
+  Detect if the user pressed the `backspace` key. If the user did,
+  and if there is still content, then prevent default behaviour 
+  which otherwise would continue to the `on-input` event, and do the
+  updating here so that we could get proper caret placement."
+  [id content caret-location event]
   (cond (or (= "Enter" (.-key event))
             (= 13 (.-keyCode event)))
         (create-block! id event)
 
-        (and (empty? content)
+        (and (empty? @content)
              (or (= "Backspace" (.-key event))
                  (= 8 (.-keyCode event))))
-        (delete-block! id event)))
+        (delete-block! id event)
+
+        (and (seq @content)
+             (or (= "Backspace" (.-key event))
+                 (= 8 (.-keyCode event))))
+        (delete-from-block! content caret-location event)))
 
 (defn on-input!
   "Whenever a key is pressed, we want to update the `content-state` atom 
@@ -74,9 +101,11 @@
   after updating `content`, the component re-renders, and the caret
   location is lost and we want to set it in the right place again."
   [content caret-location id event]
-  (let [new-content (utils/parse-html (.-innerHTML (.-target event)))]
+  (let [new-content (utils/parse-html (.-innerHTML (.-target event)))
+        selection (.getSelection js/window)
+        base-offset (.-baseOffset selection)]
     (reset! content new-content)
-    (reset! caret-location (count new-content))
+    (reset! caret-location base-offset)
     (dispatch-sync
      [:update-paragraph-block
       {:id id
@@ -158,7 +187,7 @@
      :ref (fn [el] (reset! ref el))
      :on-focus #(dispatch [:set-active-block id])
      :on-blur #(when (empty? @content) (reset! focus nil))
-     :on-key-down #(on-key-down! id @content %)
+     :on-key-down #(on-key-down! id content caret-location %)
      :on-input #(on-input! content caret-location id %)
      :on-paste #(on-paste! content caret-location %)
      :dangerouslySetInnerHTML {:__html @content}}]])

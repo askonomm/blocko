@@ -88,6 +88,14 @@
         split-end (subs string index)]
     (str split-beginning inserted-string split-end)))
 
+(defn string<-string
+  "Removes a selection between `from-offset` and `to-offset` 
+  from the given `string`."
+  [string from-offset to-offset]
+  (let [split-beginning (subs string 0 from-offset)
+        split-end (subs string to-offset)]
+    (str split-beginning split-end)))
+
 (defn find-by-predicate [predicate collection]
   (first (filter predicate collection)))
 
