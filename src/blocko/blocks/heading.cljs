@@ -26,10 +26,9 @@
   It does dispatch a special event however, which tries to 
   find a block before this one - and then focus in it, for that smooth
   user experience sweetness."
-  [id content event]
-  (when (empty? content)
-    (.preventDefault event)
-    (dispatch [:delete-block-and-focus-on-previous id])))
+  [id event]
+  (.preventDefault event)
+  (dispatch [:delete-block-and-focus-on-previous id]))
 
 (defn on-key-down!
   "Use case 1: 
@@ -48,9 +47,10 @@
             (= 13 (.-keyCode event)))
         (create-block! id event)
 
-        (or (= "Backspace" (.-key event))
-            (= 8 (.-keyCode event)))
-        (delete-block! id (.-value (.-target event)) event)))
+        (and (empty? (.-value (.-target event)))
+             (or (= "Backspace" (.-key event))
+                 (= 8 (.-keyCode event))))
+        (delete-block! id event)))
 
 (defn on-input!
   "Trigged during typing, updates the content of the block as well
