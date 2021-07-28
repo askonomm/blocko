@@ -30,11 +30,18 @@
  (fn [db [_ id]]
    (assoc db :active-block id)))
 
-(reg-event-db
+(reg-event-fx
  :delete-block
- (fn [db [_ id]]
-   (let [blocks (get db :blocks)]
-     (assoc db :blocks (utils/block<-blocks blocks id)))))
+ (fn [cofx [_ id]]
+   (let [blocks (get-in cofx [:db :blocks])
+         updated-blocks (utils/block<-blocks blocks id)]
+     (merge
+      {:db (assoc (:db cofx) :blocks updated-blocks)}
+      (when (empty? updated-blocks)
+        {:dispatch
+         [:add-block {:position 0
+                      :block {:id (str (random-uuid))
+                              :type "paragraph"}}]})))))
 
 (reg-event-fx
  :delete-block-and-focus-on-previous
