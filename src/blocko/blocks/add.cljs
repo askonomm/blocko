@@ -5,7 +5,7 @@
    [blocko.styles :as styles]
    [blocko.icons :as icons]))
 
-(defn add-paragraph [position block-menu]
+(defn add-paragraph! [position block-menu]
   (dispatch
    [:add-block
     {:position position
@@ -14,7 +14,7 @@
              :content ""}}])
   (reset! block-menu nil))
 
-(defn add-heading [position block-menu]
+(defn add-heading! [position block-menu]
   (dispatch
    [:add-block
     {:position position
@@ -32,7 +32,7 @@
                  (styles/style :add-block-menu-list-item))
         :on-mouse-enter #(reset! hover? true)
         :on-mouse-leave #(reset! hover? nil)
-        :on-click #(add-paragraph position block-menu)}
+        :on-click #(add-paragraph! position block-menu)}
        [:div.blocko-add-block-menu-list-item-icon
         {:style (styles/style :add-block-menu-list-item-icon)}
         [icons/paragraph (styles/style :add-block-menu-list-item-icon-color)]]
@@ -49,7 +49,7 @@
                  (styles/style :add-block-menu-list-item))
         :on-mouse-enter #(reset! hover? true)
         :on-mouse-leave #(reset! hover? nil)
-        :on-click #(add-heading position block-menu)}
+        :on-click #(add-heading! position block-menu)}
        [:div.blocko-add-block-menu-list-item-icon
         {:style (styles/style :add-block-menu-list-item-icon)}
         [icons/heading (styles/style :add-block-menu-list-item-icon-color)]]
