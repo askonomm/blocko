@@ -14,7 +14,7 @@
   "Attempts to capture the DOM element for the block with a given `id`,
   and to find the actual block data itself as well by a given `id`, which
   it then tries to focus in according to `where`. After which, it will
-  set the `:block-focus` state to `nil`."
+  set the `:focus` state to `nil`."
   [{:keys [id where]} blocks]
   (when-let [block-el (.querySelector js/document (str ".blocko-block[data-id='" id "']"))]
     (let [block (utils/find-by-predicate #(= (:id %) id) blocks)

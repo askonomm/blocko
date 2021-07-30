@@ -8,7 +8,7 @@
    [blocko.utils :as utils]
    [blocko.blocks :as blocks]))
 
-(defn editor [on-change-callback js?]
+(defn- editor [on-change-callback js?]
   (let [blocks (subscribe [:blocks])
         focus (subscribe [:focus])]
     (r/create-class
@@ -23,22 +23,31 @@
          {:blocks @blocks
           :focus @focus}])})))
 
-(defn set-content! [content js?]
+(defn- create-initial-block! []
+  (let [new-block-id (str (random-uuid))]
+    (dispatch-sync
+     [:add-block
+      {:position 0
+       :block
+       {:id (str (random-uuid))
+        :type "paragraph"
+        :content ""}}])
+    (dispatch-sync
+     [:set-focus
+      {:id new-block-id
+       :where :beginning}])))
+
+(defn- set-blocks! [content js?]
+  (dispatch
+   [:set-blocks
+    (if js?
+      (utils/js->edn content)
+      content)]))
+
+(defn- set-content! [content js?]
   (if (empty? content)
-    (let [new-block-id (str (random-uuid))]
-      (dispatch-sync [:add-block
-                      {:position 0
-                       :block
-                       {:id (str (random-uuid))
-                        :type "paragraph"
-                        :content ""}}])
-      (dispatch-sync [:set-focus
-                      {:id new-block-id
-                       :where :beginning}]))
-    (dispatch [:set-blocks
-               (if js?
-                 (utils/js->edn content)
-                 content)])))
+    (create-initial-block!)
+    (set-blocks! content js?)))
 
 (defn run [args]
   (let [{:keys [content options on-change js?]} args]

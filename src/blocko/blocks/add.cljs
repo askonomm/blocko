@@ -5,25 +5,45 @@
    [blocko.styles :as styles]
    [blocko.icons :as icons]))
 
-(defn add-paragraph! [position block-menu]
+(defn- add-paragraph!
+  "Dispatches an event to create a paragraph block at a given 
+  `position`, after which it will close the block menu and hide
+  the indicator."
+  [position block-menu show-indicator?]
   (dispatch
    [:add-block
     {:position position
      :block {:id (str (random-uuid))
              :type "paragraph"
              :content ""}}])
-  (reset! block-menu nil))
+  (reset! block-menu nil)
+  (js/setTimeout #(reset! show-indicator? nil) 50))
 
-(defn add-heading! [position block-menu]
+(defn- add-heading!
+  "Dispatches an event to create a heading block at a given 
+  `position`, after which it will close the block menu and hide
+  the indicator."
+  [position block-menu show-indicator?]
   (dispatch
    [:add-block
     {:position position
      :block {:id (str (random-uuid))
              :type "heading"
              :content ""}}])
-  (reset! block-menu nil))
+  (reset! block-menu nil)
+  (js/setTimeout #(reset! show-indicator? nil) 50))
 
-(defn block-item-paragraph [position block-menu]
+(def blocks
+  [{:name "Paragraph"
+    :icon icons/paragraph
+    :on-click add-paragraph!}
+   {:name "Heading"
+    :icon icons/heading
+    :on-click add-heading!}])
+
+(defn- item
+  "Renders a given block item in the block menu."
+  [{:keys [name icon on-click]} position block-menu show-indicator?]
   (let [hover? (r/atom nil)]
     (fn []
       [:li
@@ -32,30 +52,13 @@
                  (styles/style :add-block-menu-list-item))
         :on-mouse-enter #(reset! hover? true)
         :on-mouse-leave #(reset! hover? nil)
-        :on-click #(add-paragraph! position block-menu)}
+        :on-click #(on-click position block-menu show-indicator?)}
        [:div.blocko-add-block-menu-list-item-icon
         {:style (styles/style :add-block-menu-list-item-icon)}
-        [icons/paragraph (styles/style :add-block-menu-list-item-icon-color)]]
+        [icon (styles/style :add-block-menu-list-item-icon-color)]]
        [:div.blocko-add-block-menu-list-item-label
         {:style (styles/style :add-block-menu-list-item-label)}
-        "Paragraph"]])))
-
-(defn block-item-heading [position block-menu]
-  (let [hover? (r/atom nil)]
-    (fn []
-      [:li
-       {:style (if @hover?
-                 (styles/style :add-block-menu-list-item-hover)
-                 (styles/style :add-block-menu-list-item))
-        :on-mouse-enter #(reset! hover? true)
-        :on-mouse-leave #(reset! hover? nil)
-        :on-click #(add-heading! position block-menu)}
-       [:div.blocko-add-block-menu-list-item-icon
-        {:style (styles/style :add-block-menu-list-item-icon)}
-        [icons/heading (styles/style :add-block-menu-list-item-icon-color)]]
-       [:div.blocko-add-block-menu-list-item-label
-        {:style (styles/style :add-block-menu-list-item-label)}
-        "Heading"]])))
+        name]])))
 
 (defn block [{:keys [position]}]
   (let [block-menu (r/atom nil)
@@ -78,5 +81,8 @@
            :on-mouse-leave #(reset! block-menu nil)}
           [:ul.blocko-add-block-menu-list
            {:style (styles/style :add-block-menu-list)}
-           [block-item-paragraph position block-menu]
-           [block-item-heading position block-menu]]])])))
+           (map
+            (fn [i]
+              ^{:key (get i :name)}
+              [item i position block-menu show-indicator?])
+            blocks)]])])))
