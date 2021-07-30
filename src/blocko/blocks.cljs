@@ -64,16 +64,16 @@
        [content id block]])))
 
 (defn blocks []
-  (let [state (r/atom [])]
+  (let [state (r/atom [])
+        focus (subscribe [:focus])]
     (r/create-class
      {:component-did-update
       (fn [this _]
         (let [new-argv (into {} (rest (r/argv this)))
-              new-blocks (get new-argv :blocks)
-              focus (get new-argv :focus)]
+              new-blocks (get new-argv :blocks)]
           (reset! state new-blocks)
-          (when focus
-            (focus! focus new-blocks))))
+          (when @focus
+            (focus! @focus new-blocks))))
       :reagent-render
       (fn []
         [:div.blocko {:style (styles/style :container)}

@@ -9,8 +9,7 @@
    [blocko.blocks :as blocks]))
 
 (defn- editor [on-change-callback js?]
-  (let [blocks (subscribe [:blocks])
-        focus (subscribe [:focus])]
+  (let [blocks (subscribe [:blocks])]
     (r/create-class
      {:component-did-update
       #(when-not (nil? @blocks)
@@ -20,8 +19,7 @@
       :reagent-render
       (fn []
         [blocks/blocks
-         {:blocks @blocks
-          :focus @focus}])})))
+         {:blocks @blocks}])})))
 
 (defn- create-initial-block! []
   (let [new-block-id (str (random-uuid))]
