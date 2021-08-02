@@ -56,7 +56,6 @@
         (let [content (if (= "div" (.toLowerCase (.-tagName el)))
                         (.-innerHTML el)
                         (.-value el))
-              _ (prn "content: " content)
               selection (.getSelection js/window)
               range (.createRange js/document)
               first-child-node (first (.-childNodes el))
