@@ -45,15 +45,19 @@
     (when-not (= 0 current-block-index)
       (get (vec blocks) (- current-block-index 1)))))
 
-(defn focus-block-in-position!
-  "For a given `block`, and its `el`, will attempt to set
-  the caret position according to `where` within the `focus-el-selector`."
-  [content el where]
+(defn focus-el-in-position!
+  "For a given `el`, will attempt to set the caret position according to 
+  `where`."
+  [el where]
   (cond (= :beginning where)
         (.focus el)
 
         :else
-        (let [selection (.getSelection js/window)
+        (let [content (if (= "div" (.toLowerCase (.-tagName el)))
+                        (.-innerHTML el)
+                        (.-value el))
+              _ (prn "content: " content)
+              selection (.getSelection js/window)
               range (.createRange js/document)
               first-child-node (first (.-childNodes el))
               offset (if (= :end where)

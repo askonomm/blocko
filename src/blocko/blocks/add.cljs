@@ -33,7 +33,7 @@
   (reset! block-menu nil)
   (js/setTimeout #(reset! show-indicator? nil) 50))
 
-(def blocks
+(def ^:private blocks
   [{:name "Paragraph"
     :icon icons/paragraph
     :on-click add-paragraph!}
@@ -60,29 +60,34 @@
         {:style (styles/style :add-block-menu-list-item-label)}
         name]])))
 
+(defn- render
+  "Renders the actual DOM output of the paragraph block and hooks to it
+  many of its necessary events."
+  [show-indicator? block-menu position]
+  [:div.blocko-add-block
+   {:style (styles/style :add-block)
+    :on-mouse-enter #(reset! show-indicator? true)
+    :on-mouse-leave #(reset! show-indicator? nil)}
+   (when @show-indicator?
+     [:div.blocko-add-block-indicator
+      {:style (styles/style :add-block-indicator)}
+      [:div.blocko-add-block-btn
+       {:style (styles/style :add-block-button)
+        :on-click #(reset! block-menu true)}
+       [icons/plus (styles/style :add-block-button-icon-color)]]])
+   (when @block-menu
+     [:div.blocko-add-block-menu
+      {:style (styles/style :add-block-menu)
+       :on-mouse-leave #(reset! block-menu nil)}
+      [:ul.blocko-add-block-menu-list
+       {:style (styles/style :add-block-menu-list)}
+       (map
+        (fn [i]
+          ^{:key (get i :name)}
+          [item i position block-menu show-indicator?])
+        blocks)]])])
+
 (defn block [{:keys [position]}]
   (let [block-menu (r/atom nil)
         show-indicator? (r/atom nil)]
-    (fn []
-      [:div.blocko-add-block
-       {:style (styles/style :add-block)
-        :on-mouse-enter #(reset! show-indicator? true)
-        :on-mouse-leave #(reset! show-indicator? nil)}
-       (when @show-indicator?
-         [:div.blocko-add-block-indicator
-          {:style (styles/style :add-block-indicator)}
-          [:div.blocko-add-block-btn
-           {:style (styles/style :add-block-button)
-            :on-click #(reset! block-menu true)}
-           [icons/plus (styles/style :add-block-button-icon-color)]]])
-       (when @block-menu
-         [:div.blocko-add-block-menu
-          {:style (styles/style :add-block-menu)
-           :on-mouse-leave #(reset! block-menu nil)}
-          [:ul.blocko-add-block-menu-list
-           {:style (styles/style :add-block-menu-list)}
-           (map
-            (fn [i]
-              ^{:key (get i :name)}
-              [item i position block-menu show-indicator?])
-            blocks)]])])))
+    #(render show-indicator? block-menu position)))

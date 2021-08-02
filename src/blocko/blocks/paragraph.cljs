@@ -7,7 +7,7 @@
 
 (def focus-el-selector ".blocko-block--paragraph-content[data-editable='true']")
 
-(defn create-block!
+(defn- create-block!
   "Creates a new block and focuses the cursor in it."
   [id event]
   (.preventDefault event)
@@ -22,7 +22,7 @@
                {:id new-block-id
                 :where :beginning}])))
 
-(defn delete-block!
+(defn- delete-block!
   "Checks if the content is empty and if it is, byebye block.
   It does dispatch a special event however, which tries to 
   find a block before this one - and then focus in it, for that smooth
@@ -31,22 +31,24 @@
   (.preventDefault event)
   (dispatch [:delete-block-and-focus-on-previous id]))
 
-(defn delete-from-block!
+(defn- delete-from-block!
   "Depending on whether or not we have a range selected or not, 
   it either deletes a range or a singular character at a time."
   [content caret-location event]
   (.preventDefault event)
   (let [selection (.getSelection js/window)
-        base-offset (.-baseOffset selection)
-        extent-offset (.-extentOffset selection)]
-    (when (< base-offset extent-offset)
-      (reset! content (utils/string<-string @content base-offset extent-offset))
-      (reset! caret-location base-offset))
-    (when (= base-offset extent-offset)
-      (reset! content (utils/string<-string @content (- base-offset 1) base-offset))
-      (reset! caret-location (- base-offset 1)))))
+        anchor-offset (.-anchorOffset selection)
+        focus-offset (.-focusOffset selection)]
+    ; when a selection is deleted
+    (when (< anchor-offset focus-offset)
+      (reset! content (utils/string<-string @content anchor-offset focus-offset))
+      (reset! caret-location anchor-offset))
+    ; when only 1 character at a time is deleted
+    (when (= anchor-offset focus-offset)
+      (reset! content (utils/string<-string @content (- anchor-offset 1) anchor-offset))
+      (reset! caret-location (- anchor-offset 1)))))
 
-(defn on-key-down!
+(defn- on-key-down!
   "Use case 1: 
   
   Detect if the user pressed the `enter` key or not. If
@@ -80,7 +82,7 @@
                  (= 8 (.-keyCode event))))
         (delete-from-block! content caret-location event)))
 
-(defn on-input!
+(defn- on-input!
   "Whenever a key is pressed, we want to update the `content-state` atom 
   so that whenever a `on-paste` event occurs, it would take correct 
   content as the basis of which to calculate where to paste the clip.
@@ -111,7 +113,7 @@
       {:id id
        :content new-content}])))
 
-(defn on-paste!
+(defn- on-paste!
   "Prevents the default behaviour of a paste event from happening, and 
   instead reads the contents of the clipboard, parses it (to remove any
   horrible mark-up that might come with it), and then inserts it at the
@@ -142,7 +144,7 @@
            (reset! content new-content)
            (reset! caret-location new-caret-location)))))))
 
-(defn place-caret!
+(defn- place-caret!
   "Places a caret at the desired `caret-location` position
   inside the `ref` element. But only does it if the length of 
   `content` is the same or exceeds `caret-location`. This 
@@ -155,11 +157,11 @@
   something other than `nil` (and, like said before, `content` 
   either is the same or exceeds `caret-location`).
   "
-  [ref content caret-location]
-  (utils/focus-block-in-position! @content @ref @caret-location)
+  [ref caret-location]
+  (utils/focus-el-in-position! @ref @caret-location)
   (reset! caret-location nil))
 
-(defn on-placeholder-click!
+(defn- on-placeholder-click!
   "When a user clicks the placeholder, we want to set the `focus` 
   state to `true` (which makes the placeholder disappear) and also
   dispatch a `:focus-block` event that actually makes sure the cursor
@@ -169,7 +171,7 @@
   (dispatch [:set-focus
              {:id id
               :where :end}]))
-(defn render
+(defn- render
   "Renders the actual DOM output of the paragraph block and hooks to it
   many of its necessary events."
   [{:keys [id ref focus content caret-location]}]
@@ -192,16 +194,16 @@
      :on-paste #(on-paste! content caret-location %)
      :dangerouslySetInnerHTML {:__html @content}}]])
 
-(defn block [id block]
+(defn block [block]
   (let [ref (r/atom nil)
         content (r/atom (get block :content))
         caret-location (r/atom nil)
         focus (r/atom nil)]
     (r/create-class
      {:component-did-update
-      #(place-caret! ref content caret-location)
+      #(place-caret! ref caret-location)
       :reagent-render
-      #(render {:id id
+      #(render {:id (get block :id)
                 :ref ref
                 :focus focus
                 :content content

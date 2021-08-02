@@ -10,32 +10,36 @@
    [blocko.utils :as utils]
    [blocko.styles :as styles]))
 
-(defn focus!
+(defn- focus!
   "Attempts to capture the DOM element for the block with a given `id`,
   and to find the actual block data itself as well by a given `id`, which
   it then tries to focus in according to `where`. After which, it will
   set the `:focus` state to `nil`."
   [{:keys [id where]} blocks]
   (when-let [block-el (.querySelector js/document (str ".blocko-block[data-id='" id "']"))]
-    (let [block (utils/find-by-predicate #(= (:id %) id) blocks)
-          content (get block :content)]
+    (let [block (utils/find-by-predicate #(= (:id %) id) blocks)]
       (cond (= "paragraph" (get block :type))
             (let [el (.querySelector block-el blocks.paragraph/focus-el-selector)]
-              (utils/focus-block-in-position! content el where))
+              (utils/focus-el-in-position! el where))
             (= "heading" (get block :type))
             (let [el (.querySelector block-el blocks.heading/focus-el-selector)]
-              (utils/focus-block-in-position! content el where)))
+              (utils/focus-el-in-position! el where)))
       (dispatch [:set-focus nil]))))
 
-(defn content [id block]
+(defn- content
+  "For a given `type` in a `block`, returns the correct blocks starting 
+  point function."
+  [{:keys [type] :as block}]
   (cond
-    (= "paragraph" (get block :type))
-    (blocks.paragraph/block id block)
-    (= "heading" (get block :type))
-    (blocks.heading/block id block)
+    (= "paragraph" type)
+    (blocks.paragraph/block block)
+    (= "heading" type)
+    (blocks.heading/block block)
     :else nil))
 
-(defn delete-control [id]
+(defn- delete-control
+  "Renders the delete control used to delete a block by a given `id`."
+  [id]
   (let [hover? (r/atom nil)]
     (fn []
       [:div.blocko-control
@@ -47,11 +51,11 @@
         :on-click #(dispatch [:delete-block id])}
        [icons/trash (styles/style :control-icon-color) true]])))
 
-(defn controls [id]
+(defn- controls [id]
   [:div.blocko-controls {:style (styles/style :controls)}
    [delete-control id]])
 
-(defn block [block]
+(defn- block [block]
   (let [active-block (subscribe [:active-block])
         {:keys [id type]} block]
     (fn []
@@ -61,7 +65,7 @@
         :data-id id}
        (when (= id @active-block)
          [controls id])
-       [content id block]])))
+       [content block]])))
 
 (defn blocks []
   (let [state (r/atom [])
