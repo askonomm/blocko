@@ -45,30 +45,35 @@
     (when-not (= 0 current-block-index)
       (get (vec blocks) (- current-block-index 1)))))
 
+(defn focus-el-in-offset!
+  "For a given `el`, will attempt to set the caret position according to
+  `offset`."
+  [el offset]
+  (let [selection (.getSelection js/window)
+        range (.createRange js/document)
+        first-child-node (first (.-childNodes el))]
+    (if first-child-node
+      (.setStart range first-child-node offset)
+      (.setStart range el offset))
+    (.collapse range true)
+    (.removeAllRanges selection)
+    (.addRange selection range)
+    (.focus el)))
+
 (defn focus-el-in-position!
   "For a given `el`, will attempt to set the caret position according to 
-  `where`."
+  `where`, which can be either `:beginning`, `:end` or an actual offset."
   [el where]
   (cond (= :beginning where)
         (.focus el)
-
-        :else
+        (= :end where)
         (let [content (if (= "div" (.toLowerCase (.-tagName el)))
                         (.-innerHTML el)
                         (.-value el))
-              selection (.getSelection js/window)
-              range (.createRange js/document)
-              first-child-node (first (.-childNodes el))
-              offset (if (= :end where)
-                       (count content)
-                       where)]
-          (if first-child-node
-            (.setStart range first-child-node offset)
-            (.setStart range el offset))
-          (.collapse range true)
-          (.removeAllRanges selection)
-          (.addRange selection range)
-          (.focus el))))
+              offset (count content)]
+          (focus-el-in-offset! el offset))
+        :else
+        (focus-el-in-offset! el where)))
 
 (defn parse-html
   "Takes in a raw string of `html`, and then removes all HTML
