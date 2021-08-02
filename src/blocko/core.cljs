@@ -5,7 +5,6 @@
    [re-frame.core :refer [dispatch dispatch-sync subscribe]]
    [blocko.events]
    [blocko.subs]
-   [blocko.utils :as utils]
    [blocko.blocks :as blocks]))
 
 (defn- editor [on-change-callback js?]
@@ -14,7 +13,7 @@
      {:component-did-update
       #(when-not (nil? @blocks)
          (if js?
-           (on-change-callback (utils/edn->js @blocks))
+           (on-change-callback (clj->js @blocks))
            (on-change-callback @blocks)))
       :reagent-render
       (fn []
@@ -39,7 +38,7 @@
   (dispatch
    [:set-blocks
     (if js?
-      (utils/js->edn content)
+      (js->clj content :keywordize-keys true)
       content)]))
 
 (defn- set-content! [content js?]

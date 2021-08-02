@@ -10,13 +10,10 @@
   [blocks block position]
   (cond (empty? blocks)
         [block]
-
         (= position :beginning)
         (into [block] blocks)
-
         (= position :end)
         (conj blocks block)
-
         :else
         (flatten
          (mapv
@@ -104,25 +101,18 @@
         split-end (subs string to-offset)]
     (str split-beginning split-end)))
 
-(defn find-by-predicate [predicate collection]
+(defn find-by-predicate
+  "Finds the first item in a given `collection by a given `predicate`."
+  [predicate collection]
   (first (filter predicate collection)))
 
-(defn update-by-predicate [predicate key-value collection]
+(defn update-by-predicate
+  "Updates item(s) in a given `collection` according to given `predicate`
+  with a key-value pair given with `key-value`. "
+  [predicate key-value collection]
   (let [key (key (first key-value))
         value (val (first key-value))]
     (vec (map (fn [i]
                 (if (predicate i)
                   (assoc i key value)
                   i)) collection))))
-
-(defn edn->json [edn]
-  (.stringify js/JSON (clj->js edn)))
-
-(defn edn->js [edn]
-  (clj->js edn))
-
-(defn json->edn [json]
-  (js->clj (.parse js/JSON json) :keywordize-keys true))
-
-(defn js->edn [js]
-  (js->clj js :keywordize-keys true))
